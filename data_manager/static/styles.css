@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#toolbar, #footer {
+    padding: 10px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #e7e7e7;
+    display: flex;
+    justify-content: space-between;
+}
+
+#content {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+#image-display-area {
+    margin-bottom: 20px;
+    /* 可以考虑不设置最大高度，让图片自然大小显示，通过滚动查看 */
+    overflow: auto; /* 添加滚动条以查看超出部分 */
+    justify-content: center;
+    align-items: flex-start; /* 将图片对齐到容器的顶部 */
+    display: flex;
+    /* 如果图片旋转后高度超过了视窗，可以考虑这样设置 */
+    min-height: 100px; /* 设置一个合适的最小高度 */
+    max-height: 60vh; /* 设置一个最大高度，如视窗的60% */
+}
+
+#image-display {
+    border: 1px solid #000;
+    margin-bottom: 10px;
+    transition: transform 0.5s ease; /* 平滑旋转效果 */
+    /* 如果不设置宽度，图片将保持原始尺寸 */
+    height: auto;
+    transform-origin: top center; /* 对于横向图片旋转后设置 */
+    max-width: 100%; /* 最大宽度为容器的100%，保证图片不超出容器 */
+    object-fit: contain; /* 保持原始比例，同时确保图片不超出容器边界 */
+    transform-origin: center; /* 旋转中心点为图片的中心 */
+}
+
+#latex-code {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #000;
+    margin-bottom: 10px;
+}
+
+#classification-area button {
+    margin-right: 10px;
+}
+
+#footer {
+    align-items: center;
+}
+
+#counter {
+    margin: 0 20px;
+}
