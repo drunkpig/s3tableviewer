@@ -45,8 +45,8 @@
 ## 开始
 
 ```bash
-git clone <repository-url>
-cd <repository-name>
+git clone https://github.com/drunkpig/s3tableviewer.git
+cd s3tableviewer
 # 安装依赖
 pip install -r requirements.txt
 # 运行项目
