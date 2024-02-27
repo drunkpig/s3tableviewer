@@ -44,6 +44,21 @@
 
 ## 开始
 
+首先，请确保你已经设置了必要的环境变量。打开你的终端（在Unix-like系统中）或命令提示符/PowerShell（在Windows系统中），并输入以下命令，替换尖括号及其内容为你的实际凭证：
+
+```bash
+export AWS_ACCESS_KEY_ID=<你的访问密钥>
+export AWS_SECRET_ACCESS_KEY=<你的秘密密钥>
+export ENDPOINT_URL=<你的端点URL>
+```
+
+请注意，在Windows上，你应该使用 set 命令而不是 export：
+```cmd
+set AWS_ACCESS_KEY_ID=<你的访问密钥>
+set AWS_SECRET_ACCESS_KEY=<你的秘密密钥>
+set ENDPOINT_URL=<你的端点URL>
+```
+设置了环境变量后，继续以下步骤克隆仓库并运行项目：
 ```bash
 git clone https://github.com/drunkpig/s3tableviewer.git
 cd s3tableviewer
@@ -51,3 +66,4 @@ cd s3tableviewer
 pip install -r requirements.txt
 # 运行项目
 python manage.py runserver
+```

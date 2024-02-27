@@ -10,13 +10,14 @@ from .models import DataItem
 from django.shortcuts import render
 from django.http import JsonResponse
 import re
-from django.conf import settings
+import os
 
 
-#请替换成自己的ak sk 和endpoint
-AWS_ACCESS_KEY_ID = ''
-AWS_SECRET_ACCESS_KEY = ''
-ENDPOINT_URL = ''
+
+
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY').strip()
+ENDPOINT_URL = os.environ.get('ENDPOINT_URL').strip()
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID').strip()
 
 @xframe_options_exempt
 def index(request):
