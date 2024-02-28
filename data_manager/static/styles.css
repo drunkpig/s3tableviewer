@@ -14,6 +14,15 @@ body {
     justify-content: space-between;
 }
 
+label {
+    margin-right: 10px; /* 在标签和输入框之间添加一些间距 */
+}
+
+#load-error {
+    margin-left: 10px;
+    color: red;
+}
+
 #content {
     padding: 20px;
     flex-grow: 1;

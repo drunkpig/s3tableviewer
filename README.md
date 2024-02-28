@@ -64,6 +64,8 @@ git clone https://github.com/drunkpig/s3tableviewer.git
 cd s3tableviewer
 # 安装依赖
 pip install -r requirements.txt
+# 应用数据库迁移
+python manage.py migrate
 # 运行项目
 python manage.py runserver
 ```

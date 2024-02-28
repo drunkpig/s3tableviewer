@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const pdfDisplayArea = document.getElementById('pdf-display-area');
     const latexDisplayArea = document.getElementById('latex-display-area');
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-  
+    const loadError = document.getElementById('load-error');
+
+    pathInput.value = 's3://bucket-name/prefix';
     function base64DecodeUnicode(str) {
         // 将Base64编码的字节转换为百分比编码，然后获取原始字符串。
         percentEncodedStr = atob(str).split('').map(function(c) {
@@ -39,19 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+              // 如果响应状态码不是2xx，则抛出错误以进入catch块
+              return response.json().then(errData => {
+                throw new Error(errData.message || 'Server responded with an error.');
+              });
             }
             return response.json();
-        })
+          })
         .then(data => {
             dataItems = data; // 直接赋值
             totalItems = dataItems.length;
             currentIndex = 0; // 重置索引
             updateDisplay(); // 更新显示
+            loadError.textContent='';
         })
         .catch(error => {
             console.error('Error loading data:', error);
-            errorMessages.textContent = '加载数据失败: ' + error.message;
+            loadError.textContent = '加载数据失败: ' + error.message; // 显示错误信息
+            // 可以在这里添加额外的逻辑，例如让输入框获得焦点以便用户重新输入
+            pathInput.focus();
         });
     }
     
@@ -204,8 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
             //重置旋转状态
             imageDisplay.style.transform = 'rotate(0deg)';
             imageDisplay.setAttribute('data-rotation', '0');
-            // 假设你在某个地方从后端获取了item对象，这里直接使用console.log来检查它
-            // console.log(item); // 查看item对象结构
             imageDisplay.src = item.image_path;
             // 图片加载完成后的操作
             imageDisplay.onload = function() {
