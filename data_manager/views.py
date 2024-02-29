@@ -120,7 +120,6 @@ def load_json_from_s3(request):
 
 
 
-
 @require_http_methods(["POST"])
 def classify_data_item(request):
     try:
@@ -141,20 +140,34 @@ def classify_data_item(request):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
 
-def export_classified_data(request, category):
+CATEGORY_MAPPING = {
+    'compilable_consistent': '可编译表一致',
+    'compilable_slightly_inconsistent': '可编译表轻微不一致',
+    'compilable_inconsistent': '可编译表不一致',
+    'non_compilable': '不可编译',
+}
+
+def export_classified_data(request):
     # 根据分类查询数据项
-    data_items = DataItem.objects.filter(category=category, is_annotated=True).values('image_name', 'pred_tex_code')
+    data_items = DataItem.objects.filter(is_annotated=True).values('image_name', 'pred_tex_code','category')
 
     # 转换queryset为list，仅包含需要的字段
-    data_list = list(data_items)
-
+    data_list = [
+        {
+            'image_name': item['image_name'],
+            'pred_tex_code': item['pred_tex_code'],
+            'category': CATEGORY_MAPPING.get(item['category'], item['category']),  # 使用映射转换分类
+        }
+        for item in data_items
+     ]
     # 转换为 JSON 字符串
-    data_json = json.dumps(data_list, ensure_ascii=False)
+    data_json = json.dumps(data_list, ensure_ascii=False, indent=4)
 
     # 设置响应内容类型为 JSON 并设置一个合适的文件名
     response = HttpResponse(data_json, content_type='application/json')
-    response['Content-Disposition'] = f'attachment; filename="{category}_data.json"'
-
+    response['Content-Disposition'] = f'attachment; filename="all_classified_data.json"'
+ 
     return response
 

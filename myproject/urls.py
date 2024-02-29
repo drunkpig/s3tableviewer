@@ -24,9 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', data_manager_views.index, name='index'),  # 主页设置为 data_manager 的 index 视图
     path('compile_pdf/', data_manager_views.compile_pdf, name='compile_pdf'),
-    # path('api/load-json/<str:file_name>/', data_manager_views.load_json_from_local, name='load_json_from_local'),
     path('classify_data_item/', data_manager_views.classify_data_item, name='classify_data_item'),
-    path('export_classified_data/<str:category>/', data_manager_views.export_classified_data, name='export_classified_data'),
+    path('export_all_classified_data/', data_manager_views.export_classified_data, name='export_classified_data'),
     path('api/load-json-from-s3/', data_manager_views.load_json_from_s3, name='load_json_from_s3'),
     # ... 其他可能的 URL
 ]

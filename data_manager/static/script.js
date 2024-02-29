@@ -312,30 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     exportButton.addEventListener('click', function() {
-        // 获取所有分类按钮
-        const classifyButtons = document.querySelectorAll('.classify');
+        // 构建导出数据的 URL
+        const exportUrl = '/export_all_classified_data/'; 
 
-        // 使用异步函数以顺序处理导出操作
-        async function exportAllCategories() {
-            for (const button of classifyButtons) {
-                const category = button.getAttribute('data-category');
-                // 构建导出数据的 URL
-                const exportUrl = `/export_classified_data/${encodeURIComponent(category)}/`;
-
-                // 模拟点击链接下载
-                const a = document.createElement('a');
-                a.href = exportUrl;
-                a.download = `${category}.json`; // 设置下载的文件名
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // 等待一定时间再进行下一个下载，避免同时触发多个下载
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-        }
-
-        exportAllCategories().then(() => console.log('所有分类数据导出完成'));
+        // 发起请求以触发文件下载
+        window.location.href = exportUrl;
     });
 
 });
