@@ -14,9 +14,28 @@ body {
     justify-content: space-between;
 }
 
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
 label {
     margin-right: 10px; /* 在标签和输入框之间添加一些间距 */
 }
+
 
 #load-error {
     margin-left: 10px;

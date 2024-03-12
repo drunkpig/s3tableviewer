@@ -10,14 +10,14 @@ from .models import DataItem
 from django.shortcuts import render
 from django.http import JsonResponse
 import re
-import os
+# import os
 
 
 
 
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY').strip()
-ENDPOINT_URL = os.environ.get('ENDPOINT_URL').strip()
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID').strip()
+# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY').strip()
+# ENDPOINT_URL = os.environ.get('ENDPOINT_URL').strip()
+# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID').strip()
 
 @xframe_options_exempt
 def index(request):
@@ -55,30 +55,59 @@ def compile_pdf(request):
             }, status=500)
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'message': '无效的请求格式'}, status=400)
-    
+
+
+
+@require_http_methods(["POST"])
+def set_aws_credentials(request):
+    try:
+        # 获取前端发送的数据
+        data = json.loads(request.body)
+        aws_access_key_id = data.get('aws_access_key_id')
+        aws_secret_access_key = data.get('aws_secret_access_key')
+        endpoint_url = data.get('endpoint_url')
+
+        # 将凭证存储在会话中
+        request.session['aws_access_key_id'] = aws_access_key_id
+        request.session['aws_secret_access_key'] = aws_secret_access_key
+        request.session['endpoint_url'] = endpoint_url
+
+        return JsonResponse({'message': 'AWS credentials set successfully.'})
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
+
+
 
 @require_http_methods(["POST"])
 def load_json_from_s3(request):
-    """从S3桶动态加载并返回JSON数据，并将图片保存到文件系统中，路径存储到数据库中。"""
+    """从S3桶动态加载并返回JSON数据，数据存储到数据库中。"""
     body = json.loads(request.body)
     s3_path = body.get('s3_path', '')
     
-    # 解析S3路径获取bucket名称和前缀
-    match = re.match(r's3://([^/]+)/(.+)', s3_path)
+    # 解析S3路径获取bucket名称和前缀以及文件名
+    match = re.match(r's3://([^/]+)/(.+)/([^/]+\.json)$', s3_path)
     if not match:
         return JsonResponse({'status': 'error', 'message': '提供的S3路径格式不正确。'}, status=400)
-    bucket_name, prefix = match.groups()
+    bucket_name, prefix, json_filename = match.groups()
+    print(bucket_name, prefix, json_filename)
 
-    # 初始化S3客户端
+    aws_access_key_id = request.session.get('aws_access_key_id')
+    aws_secret_access_key = request.session.get('aws_secret_access_key')
+    endpoint_url = request.session.get('endpoint_url')
+
+    # 确保凭证已设置
+    if not all([aws_access_key_id, aws_secret_access_key, endpoint_url]):
+        return JsonResponse({'message': 'AWS credentials not provided or session expired.'}, status=400)
+
+    # 使用会话中的凭证初始化 S3 客户端
     s3_client = boto3.client(
         's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        endpoint_url=ENDPOINT_URL  
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        endpoint_url=endpoint_url
     )
-
-    json_filename = 'tables.json'
-    json_key = prefix + json_filename
+    
+    json_key = f"{prefix}/{json_filename}"
     try:
         # 读取并加载JSON文件
         json_object = s3_client.get_object(Bucket=bucket_name, Key=json_key)
@@ -87,13 +116,11 @@ def load_json_from_s3(request):
     
         for item in json_data:
             image_name = item['image_name']
-            image_key = f"{prefix}{image_name}"  # S3中的完整key路径
-
+            image_key = f"{prefix}/{image_name}"  # S3中的完整key路径
             # 生成预签名URL
             image_url = s3_client.generate_presigned_url('get_object',
                                                         Params={'Bucket': bucket_name, 'Key': image_key},
                                                         ExpiresIn=3600)  # URL有效期为3600秒（1小时）
-
             # 保存图片名称和其他信息到数据库
             DataItem.objects.update_or_create(
                 image_name=image_name,

@@ -16,8 +16,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const latexDisplayArea = document.getElementById('latex-display-area');
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const loadError = document.getElementById('load-error');
+    const setCredentials = document.getElementById('set-credentials');
+    const cancel = document.getElementById('cancel');
 
     pathInput.value = 's3://bucket-name/prefix';
+    
     function base64DecodeUnicode(str) {
         // 将Base64编码的字节转换为百分比编码，然后获取原始字符串。
         percentEncodedStr = atob(str).split('').map(function(c) {
@@ -26,8 +29,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
         return decodeURIComponent(percentEncodedStr);
     }
+    
+    function showPopup() {
+        document.getElementById('awsCredentialsPopup').style.display = 'flex';
+    }
+    
+    function closePopup() {
+        document.getElementById('awsCredentialsPopup').style.display = 'none';
+    }
+    document.getElementById('awsCredentialsForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+    
+        const awsAccessKeyId = document.getElementById('awsAccessKeyId').value;
+        const awsSecretAccessKey = document.getElementById('awsSecretAccessKey').value;
+        const endpointUrl = document.getElementById('endpointUrl').value;
+    
+        // 使用 fetch API 发送数据到后端
+        fetch('/set_aws_credentials/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken, // 确保这里使用了正确的 CSRF Token
+            },
+            body: JSON.stringify({
+                aws_access_key_id: awsAccessKeyId,
+                aws_secret_access_key: awsSecretAccessKey,
+                endpoint_url: endpointUrl,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); // 处理响应数据
+            closePopup(); // 关闭弹窗
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+  
+     
+    
+    
 
- 
     function loadDataItems(s3Path) {
         // 使用传入的S3路径发送请求
         fetch('/api/load-json-from-s3/', {
@@ -128,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         });
     }
+    
     
     function adjustImageOnRotation(imgElement, rotationAngle) {
         const parent = imgElement.parentElement;
@@ -250,12 +295,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    cancel.addEventListener('click', function() {
+        closePopup();
+    });
     
     
-    
-    
+    setCredentials.addEventListener('click', function() {
+        showPopup();  // 假设showPopup是您已经定义好的用于显示AWS凭证输入表单的函数
+    });
 
     loadButton.addEventListener('click', function() {
+        // showPopup();
         loadDataItems(pathInput.value);
     });
 

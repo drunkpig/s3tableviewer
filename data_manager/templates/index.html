@@ -3,7 +3,9 @@
 <!DOCTYPE html>
 
 <html lang="zh">
+
 <head>
+    
     <meta charset="UTF-8">
     <title>数据标注工具</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
@@ -11,16 +13,39 @@
         // 在加载任何其他脚本之前定义静态资源的基路径
         var staticImageUrl = "{% static 'tables/' %}";
     </script>
+
 </head>
 <body>
     <div id="toolbar">
         <label for="path-input">请输入s3桶路径:</label>
         <input type="text" id="path-input" placeholder="请输入路径" />
         <button id="load">加载</button>
+        <button id="set-credentials">输入AWS凭证</button>
         <span id="load-error" style="margin-left: 10px; color: red;"></span>
         <button id="rotate-image">旋转图片</button>
         <button id="export">导出标注</button>
     </div>
+
+    <div id="awsCredentialsPopup" class="popup-overlay" style="display:none;">
+        <div class="popup-content">
+            <form id="awsCredentialsForm">
+                <h2>请输入 AWS 凭证</h2>
+                <label for="awsAccessKeyId">Access Key ID:</label>
+                <input type="text" id="awsAccessKeyId" name="awsAccessKeyId" required>
+
+                <label for="awsSecretAccessKey">Secret Access Key:</label>
+                <input type="password" id="awsSecretAccessKey" name="awsSecretAccessKey" required>
+
+                <label for="endpointUrl">Endpoint URL:</label>
+                <input type="text" id="endpointUrl" name="endpointUrl">
+
+                <button type="submit">提交</button>
+                <button type="cancel">取消</button>
+            </form>
+        </div>
+    </div>
+
+
 
     <div id="content">
         <div id="image-display-area">
