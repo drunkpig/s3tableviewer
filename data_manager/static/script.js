@@ -17,9 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const loadError = document.getElementById('load-error');
     const setCredentials = document.getElementById('set-credentials');
-    const cancel = document.getElementById('cancel');
 
-    pathInput.value = 's3://bucket-name/prefix';
+    pathInput.value = 's3://bucket-name/prefix/name.json';
     
     function base64DecodeUnicode(str) {
         // 将Base64编码的字节转换为百分比编码，然后获取原始字符串。
@@ -295,8 +294,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    cancel.addEventListener('click', function() {
-        closePopup();
+    document.getElementById('cancelButton').addEventListener('click', function() {
+        closePopup(); // 调用 closePopup 函数来关闭弹窗
     });
     
     
